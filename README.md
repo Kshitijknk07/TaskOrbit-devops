@@ -24,7 +24,7 @@
 
 ```
          🌐 Frontend (Next.js)           🔧 Backend (GoLang)         🗄️ Database (PostgreSQL)
-              Port: 3000        ←→        Port: 8080        ←→         Port: 5432
+              Port: 3001        ←→        Port: 8080        ←→         Port: 5432
                   │                           │                           │
                   ▼                           ▼                           ▼
       📊 Grafana Dashboard          📈 Prometheus Metrics         💾 Persistent Storage
@@ -111,10 +111,10 @@ cd frontend
 # Install Node.js dependencies
 npm install
 
-# Start the development server
-npm run dev
+# Start the development server on port 3001
+npm run dev -- -p 3001
 
-# Frontend will start on http://localhost:3000
+# Frontend will start on http://localhost:3001
 ```
 
 **Step 5: Add Monitoring (Optional)**
@@ -179,7 +179,7 @@ Once the installation is complete, you can access:
 
 | Service | URL | Credentials | Purpose |
 |---------|-----|-------------|----------|
-| **🖥️ TaskOrbit App** | [http://localhost:3000](http://localhost:3000) | Any email/password | Main application |
+| **🖥️ TaskOrbit App** | [http://localhost:3001](http://localhost:3001) | Any email/password | Main application |
 | **🔧 Backend API** | [http://localhost:8080](http://localhost:8080) | - | REST API endpoints |
 | **📊 Grafana Dashboard** | [http://localhost:3002](http://localhost:3002) | admin/admin | Monitoring dashboards |
 | **📈 Prometheus Metrics** | [http://localhost:9091](http://localhost:9091) | - | Raw metrics data |
@@ -189,9 +189,9 @@ Once the installation is complete, you can access:
 
 ### First Time Setup
 
-1. **Open the application**: Navigate to [http://localhost:3000](http://localhost:3000)
+1. **Open the application**: Navigate to [http://localhost:3001](http://localhost:3001)
 2. **Explore the homepage**: See the features and current statistics
-3. **Sign in**: Click "Sign In" or go to [http://localhost:3000/login](http://localhost:3000/login)
+3. **Sign in**: Click "Sign In" or go to [http://localhost:3001/login](http://localhost:3001/login)
 4. **Use demo credentials**: Enter any email (e.g., `admin@taskorbit.com`) and any password
 5. **Access dashboard**: You'll be redirected to the main dashboard
 
@@ -252,7 +252,7 @@ go vet ./...
 ```bash
 # Start frontend in development mode
 cd frontend
-npm run dev
+npm run dev -- -p 3001
 
 # Run tests
 npm test
@@ -275,7 +275,7 @@ docker build -t taskorbit-frontend ./frontend
 
 # Run individual containers
 docker run -p 8080:8080 taskorbit-backend
-docker run -p 3000:3000 taskorbit-frontend
+docker run -p 3001:3001 taskorbit-frontend
 
 # View container logs
 docker logs taskorbit-backend -f
@@ -287,20 +287,20 @@ docker logs taskorbit-frontend -f
 ### Common Issues
 
 #### ❌ Port Already in Use
-**Error**: `Error: listen EADDRINUSE: address already in use :::3000`
+**Error**: `Error: listen EADDRINUSE: address already in use :::3001`
 
 **Solution**:
 ```bash
 # Find process using the port
-lsof -i :3000
+lsof -i :3001
 # Or use netstat
-netstat -tulpn | grep :3000
+netstat -tulpn | grep :3001
 
 # Kill the process
 kill -9 <PID>
 
 # Or use different ports
-PORT=3001 npm run dev  # Frontend
+PORT=3002 npm run dev  # Frontend
 PORT=8081 go run main.go  # Backend
 ```
 
@@ -377,7 +377,7 @@ docker version
 ```bash
 # Check all services status
 echo "🔍 Service Health Check"
-echo "Frontend: $(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000)"
+echo "Frontend: $(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001)"
 echo "Backend: $(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health)"
 echo "Prometheus: $(curl -s -o /dev/null -w "%{http_code}" http://localhost:9091)"
 echo "Grafana: $(curl -s -o /dev/null -w "%{http_code}" http://localhost:3002)"
@@ -431,7 +431,7 @@ export GIN_MODE=release
 
 # Security (production)
 export JWT_SECRET=your-secret-key
-export CORS_ORIGINS=http://localhost:3000
+export CORS_ORIGINS=http://localhost:3001
 ```
 
 ### Frontend Configuration
@@ -473,7 +473,7 @@ If you encounter any issues:
 
 You know TaskOrbit is working correctly when:
 
-✅ Frontend loads at http://localhost:3000  
+✅ Frontend loads at http://localhost:3001  
 ✅ You can login with any credentials  
 ✅ Dashboard shows 3 demo tasks  
 ✅ Backend API responds at http://localhost:8080/health  
@@ -525,7 +525,7 @@ go run main.go
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev -- -p 3001
 ```
 
 ### Running Tests
@@ -539,8 +539,8 @@ cd frontend && npm test
 
 ## 📊 Monitoring
 
-- **Prometheus**: Metrics collection at `:9090`
-- **Grafana**: Visualization dashboard at `:3000`
+- **Prometheus**: Metrics collection at `:9091`
+- **Grafana**: Visualization dashboard at `:3002`
 - **Alerts**: Real-time notifications for system issues
 
 ## 🔐 Security
