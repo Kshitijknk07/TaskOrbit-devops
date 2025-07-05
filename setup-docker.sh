@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# TaskOrbit Quick Setup Script
-# This script helps you get TaskOrbit running quickly
+# TaskOrbit Docker Setup Script
+# This script sets up TaskOrbit using Docker containers
 
 set -e
 
@@ -91,9 +91,9 @@ check_ports() {
     fi
 }
 
-# Start database
+# Start database using Docker
 start_database() {
-    print_step "Starting PostgreSQL database..."
+    print_step "Starting PostgreSQL database using Docker..."
     
     if docker ps --format "table {{.Names}}" | grep -q "taskorbit-db"; then
         print_warning "Database container already running"
@@ -167,7 +167,7 @@ setup_frontend() {
     fi
 }
 
-# Setup monitoring (optional)
+# Setup monitoring using Docker
 setup_monitoring() {
     read -p "Do you want to set up monitoring (Prometheus + Grafana)? (y/N): " choice
     case "$choice" in 
@@ -219,8 +219,8 @@ generate_demo_traffic() {
 # Show service status
 show_status() {
     echo ""
-    echo "🎉 TaskOrbit Setup Complete!"
-    echo "================================"
+    echo "🎉 TaskOrbit Docker Setup Complete!"
+    echo "===================================="
     echo ""
     echo "📱 Access your services:"
     echo "  Frontend:   http://localhost:3001"
@@ -229,7 +229,7 @@ show_status() {
     echo "  Prometheus: http://localhost:9091"
     echo ""
     echo "🔧 Management commands:"
-    echo "  Stop all:     ./stop.sh"
+    echo "  Stop all:     ./stop-docker.sh"
     echo "  View logs:    tail -f backend.log frontend.log"
     echo "  Check health: curl http://localhost:8080/health"
     echo ""
@@ -246,12 +246,12 @@ show_status() {
     echo ""
 }
 
-# Create stop script
+# Create stop script for Docker setup
 create_stop_script() {
-    cat > stop.sh << 'EOF'
+    cat > stop-docker.sh << 'EOF'
 #!/bin/bash
 
-echo "🛑 Stopping TaskOrbit services..."
+echo "🛑 Stopping TaskOrbit Docker services..."
 
 # Stop backend
 if [ -f backend.pid ]; then
@@ -274,13 +274,13 @@ echo "✅ Docker containers stopped"
 
 echo "🎉 All services stopped!"
 EOF
-    chmod +x stop.sh
+    chmod +x stop-docker.sh
 }
 
 # Main setup function
 main() {
-    echo "🚀 TaskOrbit Quick Setup"
-    echo "========================"
+    echo "🚀 TaskOrbit Docker Setup"
+    echo "========================="
     echo ""
     
     check_prerequisites
@@ -295,4 +295,4 @@ main() {
 }
 
 # Run main function
-main "$@"
+main "$@" 
