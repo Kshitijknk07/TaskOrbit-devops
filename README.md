@@ -24,7 +24,7 @@
 
 ```
          🌐 Frontend (Next.js)           🔧 Backend (GoLang)         🗄️ Database (PostgreSQL)
-              Port: 3001        ←→        Port: 8080        ←→         Port: 5432
+              Port: 3001        ←→        Port: 8080        ←→         Port: 5433
                   │                           │                           │
                   ▼                           ▼                           ▼
       📊 Grafana Dashboard          📈 Prometheus Metrics         💾 Persistent Storage
@@ -80,7 +80,7 @@ docker run -d \
   -e POSTGRES_DB=taskorbit \
   -e POSTGRES_USER=taskorbit \
   -e POSTGRES_PASSWORD=taskorbit123 \
-  -p 5432:5432 \
+              -p 5433:5432 \
   postgres:15-alpine
 
 # Verify database is running
@@ -183,7 +183,7 @@ Once the installation is complete, you can access:
 | **🔧 Backend API** | [http://localhost:8080](http://localhost:8080) | - | REST API endpoints |
 | **📊 Grafana Dashboard** | [http://localhost:3002](http://localhost:3002) | admin/admin | Monitoring dashboards |
 | **📈 Prometheus Metrics** | [http://localhost:9091](http://localhost:9091) | - | Raw metrics data |
-| **🗄️ Database** | localhost:5432 | taskorbit/taskorbit123 | PostgreSQL database |
+| **🗄️ Database** | localhost:5433 | taskorbit/taskorbit123 | PostgreSQL database |
 
 ## 🎮 Using TaskOrbit
 
@@ -383,7 +383,7 @@ echo "Prometheus: $(curl -s -o /dev/null -w "%{http_code}" http://localhost:9091
 echo "Grafana: $(curl -s -o /dev/null -w "%{http_code}" http://localhost:3002)"
 
 # Check database connectivity
-psql -h localhost -p 5432 -U taskorbit -d taskorbit -c "SELECT 1;"
+psql -h localhost -p 5433 -U taskorbit -d taskorbit -c "SELECT 1;"
 ```
 
 ### Performance Optimization
@@ -420,7 +420,7 @@ npm update
 ```bash
 # Database settings
 export DB_HOST=localhost
-export DB_PORT=5432
+export DB_PORT=5433
 export DB_USER=taskorbit
 export DB_PASSWORD=taskorbit123
 export DB_NAME=taskorbit
