@@ -1,1 +1,166 @@
-TaskOrbit
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/placeholder/TaskOrbit-logo.png" width="120" alt="TaskOrbit Logo"/>
+</p>
+
+<h1 align="center">TaskOrbit</h1>
+
+<p align="center">
+  <b>Epic, Scalable, Real-Time Task Management Platform</b><br/>
+  <a href="#architecture">Architecture</a> • <a href="#quickstart">Quickstart</a> • <a href="#api">API</a> • <a href="#deployment">Deployment</a> • <a href="#contributing">Contributing</a>
+</p>
+
+---
+
+## Overview
+
+TaskOrbit is a modern, high-performance backend for collaborative task management, built with NestJS, TypeScript, and Docker. It features real-time updates, robust authentication, and seamless integration with Redis and PostgreSQL. Designed for speed, scalability, and developer happiness.
+
+---
+
+## Architecture
+
+- **NestJS**: Modular, scalable Node.js framework
+- **TypeScript**: Type-safe, maintainable codebase
+- **Redis**: Fast in-memory data store for caching and pub/sub
+- **PostgreSQL**: Relational database (configure separately)
+- **Docker Compose**: Local orchestration
+- **Kubernetes**: Production-grade deployment manifests
+
+```
+[Client]
+   |
+[Backend (NestJS)] <--> [Redis]
+   |
+[PostgreSQL]
+```
+
+---
+
+## Quickstart
+
+### Prerequisites
+- Docker & Docker Compose
+- Node.js 18+ (for local dev)
+
+### 1. Clone the Repository
+```bash
+git clone <your-repo-url>
+cd TaskOrbit-devops
+```
+
+### 2. Start with Docker Compose
+```bash
+docker-compose up --build
+```
+- Backend: http://localhost:3000
+- Redis: localhost:6379
+
+### 3. Local Development (Optional)
+```bash
+cd backend-nestjs
+pnpm install
+pnpm run start:dev
+```
+
+---
+
+## Kubernetes Deployment
+
+1. Build and push your backend image (update image name in k8s manifests):
+```bash
+docker build -t <your-dockerhub>/taskorbit-backend:latest ./backend-nestjs
+docker push <your-dockerhub>/taskorbit-backend:latest
+```
+2. Deploy to your cluster:
+```bash
+kubectl apply -f k8s/redis-deployment.yaml
+kubectl apply -f k8s/backend-deployment.yaml
+kubectl apply -f k8s/backend-ingress.yaml
+```
+
+---
+
+## API Summary
+
+### Authentication
+- `POST /auth/register` — Register a new user
+- `POST /auth/login` — Login and receive JWT
+
+### Users
+- `POST /users` — Create user
+- `GET /users` — List users
+- `GET /users/:email` — Get user by email
+- `PUT /users/:email` — Update user
+- `DELETE /users/:email` — Delete user
+
+### Tasks
+- `POST /tasks` — Create task
+- `GET /tasks` — List tasks
+- `GET /tasks/:id` — Get task by ID
+- `PUT /tasks/:id` — Update task
+- `DELETE /tasks/:id` — Delete task
+- `PUT /tasks/:id/assign/:userId` — Assign task to user
+
+### Health
+- `GET /health` — Health check (includes Redis status)
+
+---
+
+## Data Models
+
+### User
+```json
+{
+  "id": "string",
+  "email": "string",
+  "password": "string (hashed)",
+  "name": "string",
+  "role": "user | admin"
+}
+```
+
+### Task
+```json
+{
+  "id": "string",
+  "title": "string",
+  "description": "string",
+  "status": "pending | in_progress | completed",
+  "priority": "low | medium | high",
+  "dueDate": "ISO date string",
+  "assignedTo": "user id"
+}
+```
+
+---
+
+## Environment Variables
+
+- `REDIS_URL` (default: `redis://redis:6379`)
+- `JWT_SECRET` (default: `changeme` — change in production)
+
+---
+
+## Testing
+
+```bash
+cd backend-nestjs
+pnpm run test         # Unit tests
+pnpm run test:e2e     # End-to-end tests
+pnpm run test:cov     # Coverage
+```
+
+---
+
+## Contributing
+
+1. Fork the repo
+2. Create a feature branch
+3. Commit and push
+4. Open a pull request
+
+---
+
+## License
+
+This project is UNLICENSED. For internal or educational use only.
