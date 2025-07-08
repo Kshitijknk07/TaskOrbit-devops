@@ -13,8 +13,22 @@ function toRedisHash(obj: Record<string, unknown>): Record<string, string> {
   for (const key in obj) {
     const value = obj[key];
     if (value !== undefined && value !== null) {
-      hash[key] =
-        typeof value === 'object' ? JSON.stringify(value) : String(value);
+      if (typeof value === 'object') {
+        try {
+          hash[key] = JSON.stringify(value);
+        } catch {
+          hash[key] = '';
+        }
+      } else if (
+        typeof value === 'string' ||
+        typeof value === 'number' ||
+        typeof value === 'boolean' ||
+        typeof value === 'bigint'
+      ) {
+        hash[key] = String(value);
+      } else {
+        hash[key] = '';
+      }
     }
   }
   return hash;
@@ -42,8 +56,8 @@ export class TaskService {
 
       return newTask;
     } catch (err: unknown) {
-      const error = err instanceof Error ? err : new Error('Unknown error');
-      throw new InternalServerErrorException(error.message);
+      const message = err instanceof Error ? err.message : String(err);
+      throw new InternalServerErrorException(message);
     }
   }
 
@@ -69,8 +83,8 @@ export class TaskService {
 
       return tasks;
     } catch (err: unknown) {
-      const error = err instanceof Error ? err : new Error('Unknown error');
-      throw new InternalServerErrorException(error.message);
+      const message = err instanceof Error ? err.message : String(err);
+      throw new InternalServerErrorException(message);
     }
   }
 
@@ -91,8 +105,8 @@ export class TaskService {
         assignedTo: data.assignedTo,
       };
     } catch (err: unknown) {
-      const error = err instanceof Error ? err : new Error('Unknown error');
-      throw new InternalServerErrorException(error.message);
+      const message = err instanceof Error ? err.message : String(err);
+      throw new InternalServerErrorException(message);
     }
   }
 
@@ -104,8 +118,8 @@ export class TaskService {
       await this.redis.hmset(`task:${id}`, toRedisHash(updatedTask));
       return updatedTask;
     } catch (err: unknown) {
-      const error = err instanceof Error ? err : new Error('Unknown error');
-      throw new InternalServerErrorException(error.message);
+      const message = err instanceof Error ? err.message : String(err);
+      throw new InternalServerErrorException(message);
     }
   }
 
@@ -114,8 +128,8 @@ export class TaskService {
       await this.redis.del(`task:${id}`);
       await this.redis.srem('tasks', id);
     } catch (err: unknown) {
-      const error = err instanceof Error ? err : new Error('Unknown error');
-      throw new InternalServerErrorException(error.message);
+      const message = err instanceof Error ? err.message : String(err);
+      throw new InternalServerErrorException(message);
     }
   }
 }
