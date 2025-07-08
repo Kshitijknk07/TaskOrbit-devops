@@ -1,8 +1,19 @@
+function toRedisHash(obj: Record<string, any>): Record<string, string> {
+  const hash: Record<string, string> = {};
+  for (const key in obj) {
+    const value = obj[key];
+    if (value !== undefined && value !== null) {
+      hash[key] = String(value);
+    }
+  }
+  return hash;
+}
+
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
-import { Task } from './task.entity';
 import { v4 as uuidv4 } from 'uuid';
+import { Task } from './task.entity';
 
 @Injectable()
 export class TaskService {
@@ -13,24 +24,27 @@ export class TaskService {
     const newTask: Task = {
       id,
       title: task.title!,
-      description: task.description || '',
-      status: task.status || 'pending',
-      priority: task.priority || 'medium',
-      dueDate: task.dueDate || '',
-      assignedTo: task.assignedTo || '',
+      description: task.description ?? '',
+      status: task.status ?? 'pending',
+      priority: task.priority ?? 'medium',
+      dueDate: task.dueDate ?? '',
+      assignedTo: task.assignedTo ?? '',
     };
-    await this.redis.hmset(`task:${id}`, newTask);
+
+    await this.redis.hmset(`task:${id}`, toRedisHash(newTask));
     await this.redis.sadd('tasks', id);
+
     return newTask;
   }
 
   async findAll(): Promise<Task[]> {
     const ids = await this.redis.smembers('tasks');
     const tasks: Task[] = [];
+
     for (const id of ids) {
       const data = await this.redis.hgetall(`task:${id}`);
-      if (data && data.id) {
-        const task: Task = {
+      if (data?.id) {
+        tasks.push({
           id: data.id,
           title: data.title,
           description: data.description,
@@ -38,17 +52,21 @@ export class TaskService {
           priority: data.priority as Task['priority'],
           dueDate: data.dueDate,
           assignedTo: data.assignedTo,
-        };
-        tasks.push(task);
+        });
       }
     }
+
     return tasks;
   }
 
   async findById(id: string): Promise<Task> {
     const data = await this.redis.hgetall(`task:${id}`);
-    if (!data || !data.id) throw new NotFoundException('Task not found');
-    const task: Task = {
+
+    if (!data?.id) {
+      throw new NotFoundException('Task not found');
+    }
+
+    return {
       id: data.id,
       title: data.title,
       description: data.description,
@@ -57,14 +75,15 @@ export class TaskService {
       dueDate: data.dueDate,
       assignedTo: data.assignedTo,
     };
-    return task;
   }
 
   async update(id: string, updates: Partial<Task>): Promise<Task> {
     const task = await this.findById(id);
-    const updated: Task = { ...task, ...updates };
-    await this.redis.hmset(`task:${id}`, updated);
-    return updated;
+    const updatedTask: Task = { ...task, ...updates };
+
+    await this.redis.hmset(`task:${id}`, toRedisHash(updatedTask));
+
+    return updatedTask;
   }
 
   async delete(id: string): Promise<void> {
