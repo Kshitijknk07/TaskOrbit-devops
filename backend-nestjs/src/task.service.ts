@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import type Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
@@ -20,81 +24,121 @@ export class TaskService {
   constructor(@InjectRedis() private readonly redis: Redis) {}
 
   async create(task: Partial<Task>): Promise<Task> {
-    const id = uuidv4();
-    const newTask: Task = {
-      id,
-      title: task.title!,
-      description: task.description ?? '',
-      status: task.status ?? 'pending',
-      priority: task.priority ?? 'medium',
-      dueDate: task.dueDate ?? '',
-      assignedTo: task.assignedTo ?? '',
-    };
+    try {
+      const id = uuidv4();
+      const newTask: Task = {
+        id,
+        title: task.title!,
+        description: task.description ?? '',
+        status: task.status ?? 'pending',
+        priority: task.priority ?? 'medium',
+        dueDate: task.dueDate ?? '',
+        assignedTo: task.assignedTo ?? '',
+      };
 
-    await this.redis.hmset(`task:${id}`, toRedisHash(newTask));
-    await this.redis.sadd('tasks', id);
+      await this.redis.hmset(`task:${id}`, toRedisHash(newTask));
+      await this.redis.sadd('tasks', id);
 
-    return newTask;
+      return newTask;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        throw new InternalServerErrorException(err.message);
+      } else {
+        throw new InternalServerErrorException('Unexpected error');
+      }
+    }
   }
 
   async findAll(): Promise<Task[]> {
-    const ids = await this.redis.smembers('tasks');
-    const tasks: Task[] = [];
-    for (const id of ids) {
-      const data = await this.redis.hgetall(`task:${id}`);
-      if (
-        data &&
-        typeof data === 'object' &&
-        !(data instanceof Error) &&
-        data.id
-      ) {
-        const task: Task = {
-          id: data.id,
-          title: data.title,
-          description: data.description,
-          status: data.status as Task['status'],
-          priority: data.priority as Task['priority'],
-          dueDate: data.dueDate,
-          assignedTo: data.assignedTo,
-        };
-        tasks.push(task);
+    try {
+      const ids = await this.redis.smembers('tasks');
+      const tasks: Task[] = [];
+      for (const id of ids) {
+        const data = await this.redis.hgetall(`task:${id}`);
+        if (
+          data &&
+          typeof data === 'object' &&
+          !(data instanceof Error) &&
+          data.id
+        ) {
+          const task: Task = {
+            id: data.id,
+            title: data.title,
+            description: data.description,
+            status: data.status as Task['status'],
+            priority: data.priority as Task['priority'],
+            dueDate: data.dueDate,
+            assignedTo: data.assignedTo,
+          };
+          tasks.push(task);
+        }
+      }
+      return tasks;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        throw new InternalServerErrorException(err.message);
+      } else {
+        throw new InternalServerErrorException('Unexpected error');
       }
     }
-    return tasks;
   }
 
   async findById(id: string): Promise<Task> {
-    const data = await this.redis.hgetall(`task:${id}`);
-    if (
-      !data ||
-      typeof data !== 'object' ||
-      data instanceof Error ||
-      !data.id
-    ) {
-      throw new NotFoundException('Task not found');
+    try {
+      const data = await this.redis.hgetall(`task:${id}`);
+      if (
+        !data ||
+        typeof data !== 'object' ||
+        data instanceof Error ||
+        !data.id
+      ) {
+        throw new NotFoundException('Task not found');
+      }
+      return {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        status: data.status as Task['status'],
+        priority: data.priority as Task['priority'],
+        dueDate: data.dueDate,
+        assignedTo: data.assignedTo,
+      };
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        throw new InternalServerErrorException(err.message);
+      } else {
+        throw new InternalServerErrorException('Unexpected error');
+      }
     }
-    return {
-      id: data.id,
-      title: data.title,
-      description: data.description,
-      status: data.status as Task['status'],
-      priority: data.priority as Task['priority'],
-      dueDate: data.dueDate,
-      assignedTo: data.assignedTo,
-    };
   }
 
   async update(id: string, updates: Partial<Task>): Promise<Task> {
-    const task = await this.findById(id);
-    const updatedTask: Task = { ...task, ...updates };
+    try {
+      const task = await this.findById(id);
+      const updatedTask: Task = { ...task, ...updates };
 
-    await this.redis.hmset(`task:${id}`, toRedisHash(updatedTask));
+      await this.redis.hmset(`task:${id}`, toRedisHash(updatedTask));
 
-    return updatedTask;
+      return updatedTask;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        throw new InternalServerErrorException(err.message);
+      } else {
+        throw new InternalServerErrorException('Unexpected error');
+      }
+    }
   }
 
   async delete(id: string): Promise<void> {
-    await this.redis.del(`task:${id}`);
-    await this.redis.srem('tasks', id);
+    try {
+      await this.redis.del(`task:${id}`);
+      await this.redis.srem('tasks', id);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        throw new InternalServerErrorException(err.message);
+      } else {
+        throw new InternalServerErrorException('Unexpected error');
+      }
+    }
   }
 }
