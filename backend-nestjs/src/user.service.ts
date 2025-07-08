@@ -9,7 +9,11 @@ function toRedisHash(obj: Record<string, unknown>): Record<string, string> {
   for (const key in obj) {
     const value = obj[key];
     if (value !== undefined && value !== null) {
-      hash[key] = String(value);
+      if (typeof value === 'object') {
+        hash[key] = JSON.stringify(value);
+      } else {
+        hash[key] = String(value);
+      }
     }
   }
   return hash;
