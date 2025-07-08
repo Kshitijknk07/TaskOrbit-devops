@@ -11,7 +11,7 @@ function toRedisHash(obj: Record<string, any>): Record<string, string> {
 
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
 import { Task } from './task.entity';
 
@@ -41,10 +41,10 @@ export class TaskService {
     const ids = await this.redis.smembers('tasks');
     const tasks: Task[] = [];
 
-    for (const id of ids) {
+    for (const id of ids as string[]) {
       const data = await this.redis.hgetall(`task:${id}`);
-      if (data?.id) {
-        tasks.push({
+      if (data && data.id) {
+        const task: Task = {
           id: data.id,
           title: data.title,
           description: data.description,
@@ -52,7 +52,8 @@ export class TaskService {
           priority: data.priority as Task['priority'],
           dueDate: data.dueDate,
           assignedTo: data.assignedTo,
-        });
+        };
+        tasks.push(task);
       }
     }
 
