@@ -52,4 +52,8 @@ export class UserService {
     }
     return users;
   }
+
+  async delete(email: string): Promise<void> {
+    await this.redis.del(`user:${email}`);
+  }
 }
