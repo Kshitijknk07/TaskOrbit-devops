@@ -1,14 +1,15 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import type Redis from 'ioredis';
-import { User } from './user.entity';
 import { v4 as uuidv4 } from 'uuid';
+import { User } from './user.entity';
 
-function toRedisHash(obj: Record<string, any>): Record<string, string> {
+function toRedisHash(obj: Record<string, unknown>): Record<string, string> {
   const hash: Record<string, string> = {};
   for (const key in obj) {
-    if (obj[key] !== undefined && obj[key] !== null) {
-      hash[key] = String(obj[key]);
+    const value = obj[key];
+    if (value !== undefined && value !== null) {
+      hash[key] = String(value);
     }
   }
   return hash;
@@ -21,27 +22,20 @@ export class UserService {
   async findByEmail(email: string): Promise<User | undefined> {
     try {
       const data = await this.redis.hgetall(`user:${email}`);
-      if (
-        !data ||
-        typeof data !== 'object' ||
-        data instanceof Error ||
-        !data.email
-      )
-        return undefined;
-      const user: User = {
+      if (!data || !data.email) return undefined;
+
+      return {
         id: data.id,
         email: data.email,
         password: data.password,
         name: data.name,
         role: data.role,
       };
-      return user;
     } catch (err: unknown) {
       if (err instanceof Error) {
         throw new InternalServerErrorException(err.message);
-      } else {
-        throw new InternalServerErrorException('Unexpected error');
       }
+      throw new InternalServerErrorException('Unexpected error occurred');
     }
   }
 
@@ -53,16 +47,16 @@ export class UserService {
         email: user.email!,
         password: user.password!,
         name: user.name!,
-        role: user.role || 'user',
+        role: user.role ?? 'user',
       };
+
       await this.redis.hmset(`user:${newUser.email}`, toRedisHash(newUser));
       return newUser;
     } catch (err: unknown) {
       if (err instanceof Error) {
         throw new InternalServerErrorException(err.message);
-      } else {
-        throw new InternalServerErrorException('Unexpected error');
       }
+      throw new InternalServerErrorException('Unexpected error occurred');
     }
   }
 
@@ -70,31 +64,26 @@ export class UserService {
     try {
       const keys = await this.redis.keys('user:*');
       const users: User[] = [];
+
       for (const key of keys) {
         const data = await this.redis.hgetall(key);
-        if (
-          data &&
-          typeof data === 'object' &&
-          !(data instanceof Error) &&
-          data.email
-        ) {
-          const user: User = {
+        if (data?.email) {
+          users.push({
             id: data.id,
             email: data.email,
             password: data.password,
             name: data.name,
             role: data.role,
-          };
-          users.push(user);
+          });
         }
       }
+
       return users;
     } catch (err: unknown) {
       if (err instanceof Error) {
         throw new InternalServerErrorException(err.message);
-      } else {
-        throw new InternalServerErrorException('Unexpected error');
       }
+      throw new InternalServerErrorException('Unexpected error occurred');
     }
   }
 
@@ -104,9 +93,8 @@ export class UserService {
     } catch (err: unknown) {
       if (err instanceof Error) {
         throw new InternalServerErrorException(err.message);
-      } else {
-        throw new InternalServerErrorException('Unexpected error');
       }
+      throw new InternalServerErrorException('Unexpected error occurred');
     }
   }
 }

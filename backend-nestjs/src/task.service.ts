@@ -11,7 +11,7 @@ import { Task } from './task.entity';
 function toRedisHash(obj: Record<string, unknown>): Record<string, string> {
   const hash: Record<string, string> = {};
   for (const key in obj) {
-    const value = obj[key] as string | number | boolean | undefined | null;
+    const value = obj[key];
     if (value !== undefined && value !== null) {
       hash[key] = String(value);
     }
@@ -43,9 +43,8 @@ export class TaskService {
     } catch (err: unknown) {
       if (err instanceof Error) {
         throw new InternalServerErrorException(err.message);
-      } else {
-        throw new InternalServerErrorException('Unexpected error');
       }
+      throw new InternalServerErrorException('Unexpected error occurred');
     }
   }
 
@@ -53,15 +52,11 @@ export class TaskService {
     try {
       const ids = await this.redis.smembers('tasks');
       const tasks: Task[] = [];
+
       for (const id of ids) {
         const data = await this.redis.hgetall(`task:${id}`);
-        if (
-          data &&
-          typeof data === 'object' &&
-          !(data instanceof Error) &&
-          data.id
-        ) {
-          const task: Task = {
+        if (data?.id) {
+          tasks.push({
             id: data.id,
             title: data.title,
             description: data.description,
@@ -69,31 +64,26 @@ export class TaskService {
             priority: data.priority as Task['priority'],
             dueDate: data.dueDate,
             assignedTo: data.assignedTo,
-          };
-          tasks.push(task);
+          });
         }
       }
+
       return tasks;
     } catch (err: unknown) {
       if (err instanceof Error) {
         throw new InternalServerErrorException(err.message);
-      } else {
-        throw new InternalServerErrorException('Unexpected error');
       }
+      throw new InternalServerErrorException('Unexpected error occurred');
     }
   }
 
   async findById(id: string): Promise<Task> {
     try {
       const data = await this.redis.hgetall(`task:${id}`);
-      if (
-        !data ||
-        typeof data !== 'object' ||
-        data instanceof Error ||
-        !data.id
-      ) {
+      if (!data?.id) {
         throw new NotFoundException('Task not found');
       }
+
       return {
         id: data.id,
         title: data.title,
@@ -106,26 +96,23 @@ export class TaskService {
     } catch (err: unknown) {
       if (err instanceof Error) {
         throw new InternalServerErrorException(err.message);
-      } else {
-        throw new InternalServerErrorException('Unexpected error');
       }
+      throw new InternalServerErrorException('Unexpected error occurred');
     }
   }
 
   async update(id: string, updates: Partial<Task>): Promise<Task> {
     try {
-      const task = await this.findById(id);
-      const updatedTask: Task = { ...task, ...updates };
+      const existingTask = await this.findById(id);
+      const updatedTask: Task = { ...existingTask, ...updates };
 
       await this.redis.hmset(`task:${id}`, toRedisHash(updatedTask));
-
       return updatedTask;
     } catch (err: unknown) {
       if (err instanceof Error) {
         throw new InternalServerErrorException(err.message);
-      } else {
-        throw new InternalServerErrorException('Unexpected error');
       }
+      throw new InternalServerErrorException('Unexpected error occurred');
     }
   }
 
@@ -136,9 +123,8 @@ export class TaskService {
     } catch (err: unknown) {
       if (err instanceof Error) {
         throw new InternalServerErrorException(err.message);
-      } else {
-        throw new InternalServerErrorException('Unexpected error');
       }
+      throw new InternalServerErrorException('Unexpected error occurred');
     }
   }
 }
