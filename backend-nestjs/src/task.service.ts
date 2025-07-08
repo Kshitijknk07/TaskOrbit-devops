@@ -13,11 +13,8 @@ function toRedisHash(obj: Record<string, unknown>): Record<string, string> {
   for (const key in obj) {
     const value = obj[key];
     if (value !== undefined && value !== null) {
-      if (typeof value === 'object') {
-        hash[key] = JSON.stringify(value); 
-      } else {
-        hash[key] = String(value);
-      }
+      hash[key] =
+        typeof value === 'object' ? JSON.stringify(value) : String(value);
     }
   }
   return hash;
@@ -45,10 +42,8 @@ export class TaskService {
 
       return newTask;
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        throw new InternalServerErrorException(err.message);
-      }
-      throw new InternalServerErrorException('Unexpected error occurred');
+      const error = err instanceof Error ? err : new Error('Unknown error');
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -74,10 +69,8 @@ export class TaskService {
 
       return tasks;
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        throw new InternalServerErrorException(err.message);
-      }
-      throw new InternalServerErrorException('Unexpected error occurred');
+      const error = err instanceof Error ? err : new Error('Unknown error');
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -98,10 +91,8 @@ export class TaskService {
         assignedTo: data.assignedTo,
       };
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        throw new InternalServerErrorException(err.message);
-      }
-      throw new InternalServerErrorException('Unexpected error occurred');
+      const error = err instanceof Error ? err : new Error('Unknown error');
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -113,10 +104,8 @@ export class TaskService {
       await this.redis.hmset(`task:${id}`, toRedisHash(updatedTask));
       return updatedTask;
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        throw new InternalServerErrorException(err.message);
-      }
-      throw new InternalServerErrorException('Unexpected error occurred');
+      const error = err instanceof Error ? err : new Error('Unknown error');
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -125,10 +114,8 @@ export class TaskService {
       await this.redis.del(`task:${id}`);
       await this.redis.srem('tasks', id);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        throw new InternalServerErrorException(err.message);
-      }
-      throw new InternalServerErrorException('Unexpected error occurred');
+      const error = err instanceof Error ? err : new Error('Unknown error');
+      throw new InternalServerErrorException(error.message);
     }
   }
 }
