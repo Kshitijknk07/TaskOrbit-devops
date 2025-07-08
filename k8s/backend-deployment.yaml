@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: taskorbit-backend:latest
+          image: kshitijnk007/taskorbit-backend:latest
           ports:
             - containerPort: 3000
           env:
