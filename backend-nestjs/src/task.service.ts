@@ -56,8 +56,13 @@ export class TaskService {
 
       return newTask;
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      throw new InternalServerErrorException(message);
+      throw new InternalServerErrorException(
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+            ? err
+            : JSON.stringify(err),
+      );
     }
   }
 
@@ -83,8 +88,13 @@ export class TaskService {
 
       return tasks;
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      throw new InternalServerErrorException(message);
+      throw new InternalServerErrorException(
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+            ? err
+            : JSON.stringify(err),
+      );
     }
   }
 
@@ -105,8 +115,13 @@ export class TaskService {
         assignedTo: data.assignedTo,
       };
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      throw new InternalServerErrorException(message);
+      throw new InternalServerErrorException(
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+            ? err
+            : JSON.stringify(err),
+      );
     }
   }
 
@@ -118,8 +133,13 @@ export class TaskService {
       await this.redis.hmset(`task:${id}`, toRedisHash(updatedTask));
       return updatedTask;
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      throw new InternalServerErrorException(message);
+      throw new InternalServerErrorException(
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+            ? err
+            : JSON.stringify(err),
+      );
     }
   }
 
@@ -128,8 +148,13 @@ export class TaskService {
       await this.redis.del(`task:${id}`);
       await this.redis.srem('tasks', id);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      throw new InternalServerErrorException(message);
+      throw new InternalServerErrorException(
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+            ? err
+            : JSON.stringify(err),
+      );
     }
   }
 }

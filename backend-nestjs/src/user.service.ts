@@ -47,8 +47,13 @@ export class UserService {
         role: data.role,
       };
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      throw new InternalServerErrorException(message);
+      throw new InternalServerErrorException(
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+            ? err
+            : JSON.stringify(err),
+      );
     }
   }
 
@@ -66,8 +71,13 @@ export class UserService {
       await this.redis.hmset(`user:${newUser.email}`, toRedisHash(newUser));
       return newUser;
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      throw new InternalServerErrorException(message);
+      throw new InternalServerErrorException(
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+            ? err
+            : JSON.stringify(err),
+      );
     }
   }
 
@@ -91,8 +101,13 @@ export class UserService {
 
       return users;
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      throw new InternalServerErrorException(message);
+      throw new InternalServerErrorException(
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+            ? err
+            : JSON.stringify(err),
+      );
     }
   }
 
@@ -100,8 +115,13 @@ export class UserService {
     try {
       await this.redis.del(`user:${email}`);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      throw new InternalServerErrorException(message);
+      throw new InternalServerErrorException(
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+            ? err
+            : JSON.stringify(err),
+      );
     }
   }
 }
