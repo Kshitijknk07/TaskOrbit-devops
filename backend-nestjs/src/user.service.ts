@@ -1,8 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRedis } from '@nestjs-modules/ioredis';
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 import { User } from './user.entity';
 import { v4 as uuidv4 } from 'uuid';
+
+function toRedisHash(obj: Record<string, any>): Record<string, string> {
+  const hash: Record<string, string> = {};
+  for (const key in obj) {
+    if (obj[key] !== undefined && obj[key] !== null) {
+      hash[key] = String(obj[key]);
+    }
+  }
+  return hash;
+}
 
 @Injectable()
 export class UserService {
@@ -30,14 +40,14 @@ export class UserService {
       name: user.name!,
       role: user.role || 'user',
     };
-    await this.redis.hmset(`user:${newUser.email}`, newUser);
+    await this.redis.hmset(`user:${newUser.email}`, toRedisHash(newUser));
     return newUser;
   }
 
   async findAll(): Promise<User[]> {
     const keys = await this.redis.keys('user:*');
-    const users = [];
-    for (const key of keys) {
+    const users: User[] = [];
+    for (const key of keys as string[]) {
       const data = await this.redis.hgetall(key);
       if (data && data.email) {
         const user: User = {
