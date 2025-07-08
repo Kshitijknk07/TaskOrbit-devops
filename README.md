@@ -1,12 +1,8 @@
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/placeholder/TaskOrbit-logo.png" width="120" alt="TaskOrbit Logo"/>
-</p>
 
 <h1 align="center">TaskOrbit</h1>
 
 <p align="center">
   <b>Epic, Scalable, Real-Time Task Management Platform</b><br/>
-  <a href="#architecture">Architecture</a> • <a href="#quickstart">Quickstart</a> • <a href="#api">API</a> • <a href="#deployment">Deployment</a> • <a href="#contributing">Contributing</a>
 </p>
 
 ---
@@ -149,16 +145,6 @@ pnpm run test         # Unit tests
 pnpm run test:e2e     # End-to-end tests
 pnpm run test:cov     # Coverage
 ```
-
----
-
-## Contributing
-
-1. Fork the repo
-2. Create a feature branch
-3. Commit and push
-4. Open a pull request
-
 ---
 
 ## License
