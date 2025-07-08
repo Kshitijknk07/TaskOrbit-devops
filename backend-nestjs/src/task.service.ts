@@ -42,7 +42,12 @@ export class TaskService {
     const tasks: Task[] = [];
     for (const id of ids) {
       const data = await this.redis.hgetall(`task:${id}`);
-      if (data && typeof data === 'object' && data.id) {
+      if (
+        data &&
+        typeof data === 'object' &&
+        !(data instanceof Error) &&
+        data.id
+      ) {
         const task: Task = {
           id: data.id,
           title: data.title,
@@ -60,7 +65,12 @@ export class TaskService {
 
   async findById(id: string): Promise<Task> {
     const data = await this.redis.hgetall(`task:${id}`);
-    if (!data || typeof data !== 'object' || !data.id) {
+    if (
+      !data ||
+      typeof data !== 'object' ||
+      data instanceof Error ||
+      !data.id
+    ) {
       throw new NotFoundException('Task not found');
     }
     return {
