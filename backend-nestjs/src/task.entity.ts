@@ -1,4 +1,5 @@
 export class Task {
+  [key: string]: unknown;
   id: string;
   title: string;
   description: string;

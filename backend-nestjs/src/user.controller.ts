@@ -47,7 +47,7 @@ export class UserController {
   ): Promise<User> {
     const user = await this.userService.findByEmail(email);
     if (!user) throw new NotFoundException('User not found');
-    let updated = { ...user, ...updates };
+    const updated = { ...user, ...updates };
     if (updates.password) {
       updated.password = await bcrypt.hash(updates.password, 10);
     }

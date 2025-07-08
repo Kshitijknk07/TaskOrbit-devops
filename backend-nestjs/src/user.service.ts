@@ -20,7 +20,7 @@ export class UserService {
 
   async findByEmail(email: string): Promise<User | undefined> {
     const data = await this.redis.hgetall(`user:${email}`);
-    if (!data || !data.email) return undefined;
+    if (!data || typeof data !== 'object' || !data.email) return undefined;
     const user: User = {
       id: data.id,
       email: data.email,
@@ -47,9 +47,9 @@ export class UserService {
   async findAll(): Promise<User[]> {
     const keys = await this.redis.keys('user:*');
     const users: User[] = [];
-    for (const key of keys as string[]) {
+    for (const key of keys) {
       const data = await this.redis.hgetall(key);
-      if (data && data.email) {
+      if (data && typeof data === 'object' && data.email) {
         const user: User = {
           id: data.id,
           email: data.email,

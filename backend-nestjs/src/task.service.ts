@@ -1,19 +1,19 @@
-function toRedisHash(obj: Record<string, any>): Record<string, string> {
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import type Redis from 'ioredis';
+import { v4 as uuidv4 } from 'uuid';
+import { Task } from './task.entity';
+
+function toRedisHash(obj: Record<string, unknown>): Record<string, string> {
   const hash: Record<string, string> = {};
   for (const key in obj) {
-    const value = obj[key];
+    const value = obj[key] as string | number | boolean | undefined | null;
     if (value !== undefined && value !== null) {
       hash[key] = String(value);
     }
   }
   return hash;
 }
-
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRedis } from '@nestjs-modules/ioredis';
-import type Redis from 'ioredis';
-import { v4 as uuidv4 } from 'uuid';
-import { Task } from './task.entity';
 
 @Injectable()
 export class TaskService {
@@ -40,10 +40,9 @@ export class TaskService {
   async findAll(): Promise<Task[]> {
     const ids = await this.redis.smembers('tasks');
     const tasks: Task[] = [];
-
-    for (const id of ids as string[]) {
+    for (const id of ids) {
       const data = await this.redis.hgetall(`task:${id}`);
-      if (data && data.id) {
+      if (data && typeof data === 'object' && data.id) {
         const task: Task = {
           id: data.id,
           title: data.title,
@@ -56,17 +55,14 @@ export class TaskService {
         tasks.push(task);
       }
     }
-
     return tasks;
   }
 
   async findById(id: string): Promise<Task> {
     const data = await this.redis.hgetall(`task:${id}`);
-
-    if (!data?.id) {
+    if (!data || typeof data !== 'object' || !data.id) {
       throw new NotFoundException('Task not found');
     }
-
     return {
       id: data.id,
       title: data.title,
