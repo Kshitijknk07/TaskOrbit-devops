@@ -7,57 +7,59 @@ on:
 jobs:
   build-test:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: ✅ Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: ✅ Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'pnpm'
 
-      - name: Setup pnpm
+      - name: ✅ Set up pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 8
 
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         run: pnpm install
         working-directory: backend-nestjs
 
-      - name: Lint
+      - name: 🔍 Lint
         run: pnpm run lint
         working-directory: backend-nestjs
 
-      - name: Run unit tests
+      - name: 🧪 Run unit tests
         run: pnpm run test
         working-directory: backend-nestjs
 
-      - name: Run e2e tests
+      - name: 🧪 Run e2e tests
         run: pnpm run test:e2e
         working-directory: backend-nestjs
 
   docker-build-push:
     needs: build-test
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: ✅ Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
+      - name: 🧱 Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
+      - name: 🔐 Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: 🐳 Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: ./backend-nestjs
           file: ./backend-nestjs/Dockerfile
           push: true
-          tags: kshitijnk007/taskorbit-backend:latest 
+          tags: kshitijnk007/taskorbit-backend:latest
