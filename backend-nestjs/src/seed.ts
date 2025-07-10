@@ -9,7 +9,6 @@ async function bootstrap() {
   const userService = app.get(UserService);
   const taskService = app.get(TaskService);
 
-  // Seed users
   const demoUsers = [
     {
       email: 'admin@taskorbit.com',
@@ -40,7 +39,6 @@ async function bootstrap() {
     }
   }
 
-  // Seed tasks
   const users = await userService.findAll();
   const john = users.find((u) => u.email === 'john@example.com');
   const jane = users.find((u) => u.email === 'jane@example.com');

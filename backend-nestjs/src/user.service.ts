@@ -4,7 +4,7 @@ import type Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from './user.entity';
 
-function toRedisHash(obj: Record<string, unknown>): Record<string, string> {
+function toRedisHash(obj: any): Record<string, string> {
   const hash: Record<string, string> = {};
   for (const key in obj) {
     const value = obj[key];

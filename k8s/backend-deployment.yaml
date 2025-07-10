@@ -22,6 +22,16 @@ spec:
               value: "redis://redis:6379"
             - name: JWT_SECRET
               value: "changeme" # Change in production
+            - name: POSTGRES_HOST
+              value: "postgres"
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "postgres"
+            - name: POSTGRES_DB
+              value: "taskorbit"
           resources:
             requests:
               memory: "128Mi"

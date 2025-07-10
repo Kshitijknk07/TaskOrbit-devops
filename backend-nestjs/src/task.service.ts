@@ -8,7 +8,7 @@ import type Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
 import { Task } from './task.entity';
 
-function toRedisHash(obj: Record<string, unknown>): Record<string, string> {
+function toRedisHash(obj: any): Record<string, string> {
   const hash: Record<string, string> = {};
   for (const key in obj) {
     const value = obj[key];
@@ -115,6 +115,9 @@ export class TaskService {
         assignedTo: data.assignedTo,
       };
     } catch (err: unknown) {
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
       throw new InternalServerErrorException(
         err instanceof Error
           ? err.message
