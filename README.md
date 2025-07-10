@@ -7,18 +7,18 @@
 
 ---
 
-## Overview
+## 🚀 Overview
 
 TaskOrbit is a modern, high-performance backend for collaborative task management, built with NestJS, TypeScript, and Docker. It features real-time updates, robust authentication, and seamless integration with Redis and PostgreSQL. Designed for speed, scalability, and developer happiness.
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
 - **NestJS**: Modular, scalable Node.js framework
 - **TypeScript**: Type-safe, maintainable codebase
 - **Redis**: Fast in-memory data store for caching and pub/sub
-- **PostgreSQL**: Relational database (configure separately)
+- **PostgreSQL**: Relational database
 - **Docker Compose**: Local orchestration
 - **Kubernetes**: Production-grade deployment manifests
 
@@ -32,11 +32,12 @@ TaskOrbit is a modern, high-performance backend for collaborative task managemen
 
 ---
 
-## Quickstart
+## ⚡ Quickstart
 
 ### Prerequisites
-- Docker & Docker Compose
-- Node.js 18+ (for local dev)
+- [Docker](https://docs.docker.com/get-docker/) & Docker Compose
+- [Node.js 18+](https://nodejs.org/) (for local dev)
+- [pnpm](https://pnpm.io/) (for local dev)
 
 ### 1. Clone the Repository
 ```bash
@@ -50,6 +51,7 @@ docker-compose up --build
 ```
 - Backend: http://localhost:3000
 - Redis: localhost:6379
+- PostgreSQL: localhost:5432
 
 ### 3. Local Development (Optional)
 ```bash
@@ -60,23 +62,34 @@ pnpm run start:dev
 
 ---
 
-## Kubernetes Deployment
+## 🤖 CI/CD Pipeline
 
-1. Build and push your backend image (update image name in k8s manifests):
-```bash
-docker build -t <your-dockerhub>/taskorbit-backend:latest ./backend-nestjs
-docker push <your-dockerhub>/taskorbit-backend:latest
-```
-2. Deploy to your cluster:
-```bash
-kubectl apply -f k8s/redis-deployment.yaml
-kubectl apply -f k8s/backend-deployment.yaml
-kubectl apply -f k8s/backend-ingress.yaml
-```
+- Automated with **GitHub Actions**
+- On every push to `main`:
+  - Lints, tests, and builds the backend
+  - Builds and pushes Docker image to Docker Hub
+  - (Optional) Deploys to Kubernetes (cloud cluster required)
 
 ---
 
-## API Summary
+## ☸️ Kubernetes Deployment
+
+1. **Build and push your backend image:**
+   ```bash
+   docker build -t <your-dockerhub>/taskorbit-backend:latest ./backend-nestjs
+   docker push <your-dockerhub>/taskorbit-backend:latest
+   ```
+2. **Deploy to your cluster:**
+   ```bash
+   kubectl apply -f k8s/postgres-deployment.yaml
+   kubectl apply -f k8s/redis-deployment.yaml
+   kubectl apply -f k8s/backend-deployment.yaml
+   # (Optional) kubectl apply -f k8s/backend-ingress.yaml
+   ```
+
+---
+
+## 📚 API Summary
 
 ### Authentication
 - `POST /auth/register` — Register a new user
@@ -102,7 +115,7 @@ kubectl apply -f k8s/backend-ingress.yaml
 
 ---
 
-## Data Models
+## 🗃️ Data Models
 
 ### User
 ```json
@@ -130,14 +143,19 @@ kubectl apply -f k8s/backend-ingress.yaml
 
 ---
 
-## Environment Variables
+## ⚙️ Environment Variables
 
 - `REDIS_URL` (default: `redis://redis:6379`)
+- `POSTGRES_HOST` (default: `postgres`)
+- `POSTGRES_PORT` (default: `5432`)
+- `POSTGRES_USER` (default: `postgres`)
+- `POSTGRES_PASSWORD` (default: `postgres`)
+- `POSTGRES_DB` (default: `taskorbit`)
 - `JWT_SECRET` (default: `changeme` — change in production)
 
 ---
 
-## Testing
+## 🧪 Testing
 
 ```bash
 cd backend-nestjs
@@ -145,8 +163,6 @@ pnpm run test         # Unit tests
 pnpm run test:e2e     # End-to-end tests
 pnpm run test:cov     # Coverage
 ```
----
-
-## License
+## 📄 License
 
 This project is UNLICENSED. For internal or educational use only.
