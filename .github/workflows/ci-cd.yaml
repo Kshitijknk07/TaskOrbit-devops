@@ -23,6 +23,12 @@ jobs:
         with:
           version: 8
 
+      - name: 🐞 Debug pnpm install
+        run: |
+          echo $PATH
+          which pnpm || true
+          pnpm --version || true
+
       - name: 📦 Install dependencies
         run: pnpm install
         working-directory: backend-nestjs
