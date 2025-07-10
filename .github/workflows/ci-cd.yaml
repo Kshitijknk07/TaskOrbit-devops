@@ -7,9 +7,6 @@ on:
 jobs:
   build-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend-nestjs
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,15 +24,19 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+        working-directory: backend-nestjs
 
       - name: Lint
         run: pnpm run lint
+        working-directory: backend-nestjs
 
       - name: Run unit tests
         run: pnpm run test
+        working-directory: backend-nestjs
 
       - name: Run e2e tests
         run: pnpm run test:e2e
+        working-directory: backend-nestjs
 
   docker-build-push:
     needs: build-test
